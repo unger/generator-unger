@@ -1,0 +1,11 @@
+{
+  "name": "generator-unger",
+  "version": "0.1.0",
+  "description": "Simple generator for my personal projects",
+  "keywords": [
+    "yeoman-generator"
+  ],
+  "dependencies": {
+    "yeoman-generator": "^0.17.7"
+  }
+}
