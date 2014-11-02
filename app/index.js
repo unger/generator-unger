@@ -50,6 +50,11 @@ module.exports = yeoman.generators.Base.extend({
     this.mkdir('src/images');
 
     this.write('src/scripts/main.js', 'console.log(\'\\\'Allo \\\'Allo!\');');
+    this.write('src/styles/bootstrap.scss', '@import "../../bower_components/bootstrap-sass-official/assets/stylesheets/bootstrap.scss";');
+    this.write('src/styles/main.scss', 
+		'@import "../../bower_components/bootstrap-sass-official/assets/stylesheets/bootstrap/_variables.scss";\n'+
+		'@import "../../bower_components/bootstrap-sass-official/assets/stylesheets/bootstrap/_mixins.scss";'	
+	);
   }
   
   

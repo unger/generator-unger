@@ -16,6 +16,9 @@ module.exports = function (grunt) {
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
 
+  // Load other node modules
+  grunt.loadNpmTasks('assemble');
+
   // Configurable paths
   var config = {
     src: 'src',
@@ -150,9 +153,9 @@ module.exports = function (grunt) {
 		{
           expand: true,
           dot: true,
-          cwd: '.',
-          src: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*',
-          dest: '<%%= config.dist %>'
+          cwd: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/',
+          src: '*',
+          dest: '<%%= config.dist %>/fonts/'
         }]
       },
       styles: {
@@ -194,7 +197,41 @@ module.exports = function (grunt) {
         'sass',
         'copy:styles'
       ]
-    }
+    },
+	
+	// Assemble
+	assemble: {
+	  options: {
+		data:   'src/data/*.json',
+		layoutdir: 'src/templates/layouts',
+		assets: '<%%= config.dist %>'
+	  },
+	  project: {
+		options: {
+		  layout: 'default.hbs',
+		  partials: 'src/templates/partials/**/*.hbs'
+		},
+		files: [{
+			expand: true,
+			cwd: 'src/templates/pages/',
+			src: '**/*.hbs',
+			dest: '<%%= config.dist %>'
+		}]
+	  }
+	},
+	
+	uncss: {
+		dist: {
+			options: {
+				stylesheets  : ['../.tmp/styles/bootstrap.css', '../.tmp/styles/main.css'],
+				htmlroot     : '<%%= config.dist %>/',
+			},
+			files: {
+				'.tmp/styles/tidy.css': ['<%%= config.dist %>/index.html']
+			}
+		}
+	}
+	
   });
 
 
@@ -209,6 +246,8 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'concurrent:server',
+	  'assemble',
+	  'uncss',
       'connect:livereload',
       'watch'
     ]);
@@ -222,6 +261,8 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'clean:dist',
     'concurrent:dist',
+	'assemble',
+	'uncss',
     'copy:dist',
     'modernizr'
   ]);
