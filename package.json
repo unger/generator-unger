@@ -5,6 +5,11 @@
   "keywords": [
     "yeoman-generator"
   ],
+  "homepage": "https://github.com/unger/generator-unger",
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/unger/generator-unger/blob/master/LICENSE"
+  },  
   "dependencies": {
     "yeoman-generator": "^0.17.7"
   }
