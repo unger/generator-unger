@@ -22,13 +22,16 @@ module.exports = function (grunt) {
   // Configurable paths
   var config = {
     src: 'src',
-    dist: 'dist'
+    dist: 'dist',
+	dev: 'dev',
+	pkg: grunt.file.readJSON('package.json')
   };
 
   // Define the configuration for all the tasks
   grunt.initConfig({
     // Project settings
     config: config,
+	
 
     // Watches files for changes and runs tasks based on the changed files
 
@@ -119,7 +122,7 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%%= config.src %>/styles',
           src: ['*.{scss,sass}'],
-          dest: '.tmp/styles',
+          dest: '<%%= config.dev %>/styles',
           ext: '.css'
         }]
       },
@@ -128,7 +131,7 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%%= config.src %>/styles',
           src: ['*.{scss,sass}'],
-          dest: '.tmp/styles',
+          dest: '<%%= config.dev %>/styles',
           ext: '.css'
         }]
       }
@@ -204,7 +207,7 @@ module.exports = function (grunt) {
 	  options: {
 		data:   'src/data/*.json',
 		layoutdir: 'src/templates/layouts',
-		assets: '<%%= config.dist %>'
+		assets: '<%%= config.dev %>'
 	  },
 	  project: {
 		options: {
@@ -215,7 +218,7 @@ module.exports = function (grunt) {
 			expand: true,
 			cwd: 'src/templates/pages/',
 			src: '**/*.hbs',
-			dest: '<%%= config.dist %>'
+			dest: '<%%= config.dev %>'
 		}]
 	  }
 	},
@@ -223,11 +226,10 @@ module.exports = function (grunt) {
 	uncss: {
 		dist: {
 			options: {
-				stylesheets  : ['../.tmp/styles/bootstrap.css', '../.tmp/styles/main.css'],
-				htmlroot     : '<%%= config.dist %>/',
+				htmlroot     : '<%%= config.dev %>/',
 			},
 			files: {
-				'.tmp/styles/tidy.css': ['<%%= config.dist %>/index.html']
+				'<%%= config.dist %>/styles/<%%= config.pkg.name %>.css': ['<%%= config.dev %>/index.html']
 			}
 		}
 	}
