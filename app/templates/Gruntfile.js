@@ -98,12 +98,13 @@ module.exports = function (grunt) {
 
     // Empties folders to start fresh
     clean: {
-      dist: {
+      all: {
         files: [{
           dot: true,
           src: [
             '.tmp',
             '<%%= config.dist %>/*',
+            '<%%= config.dev %>/*',
             '!<%%= config.dist %>/.git*'
           ]
         }]
@@ -161,12 +162,40 @@ module.exports = function (grunt) {
           dest: '<%%= config.dist %>/fonts/'
         }]
       },
+      dev: {
+        files: [{
+          expand: true,
+          dot: true,
+          cwd: '<%%= config.src %>',
+          dest: '<%%= config.dev %>',
+          src: [
+            '*.{ico,png,txt}',
+            'images/{,*/}*.webp',
+            '{,*/}*.html',
+            'styles/fonts/{,*/}*.*'
+          ]
+        }, 
+		{
+          expand: true,
+          dot: true,
+          cwd: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/',
+          src: '*',
+          dest: '<%%= config.dev %>/fonts/'
+        }]
+      },	  
       styles: {
         expand: true,
         dot: true,
         cwd: '<%%= config.src %>/styles',
-        dest: '.tmp/styles/',
+        dest: '<%%= config.dev %>/styles/',
         src: '{,*/}*.css'
+      },
+      scripts: {
+        expand: true,
+        dot: true,
+        cwd: '<%%= config.src %>/scripts',
+        dest: '<%%= config.dev %>/scripts/',
+        src: '{,*/}*.js'
       }
     },
 
@@ -175,12 +204,12 @@ module.exports = function (grunt) {
     modernizr: {
       dist: {
         devFile: 'bower_components/modernizr/modernizr.js',
-        outputFile: '<%%= config.dist %>/scripts/vendor/modernizr.js',
+        outputFile: '<%%= config.dev %>/scripts/vendor/modernizr.js',
         files: {
           src: [
-            '<%%= config.dist %>/scripts/{,*/}*.js',
-            '<%%= config.dist %>/styles/{,*/}*.css',
-            '!<%%= config.dist %>/scripts/vendor/*'
+            '<%%= config.dev %>/scripts/{,*/}*.js',
+            '<%%= config.dev %>/styles/{,*/}*.css',
+            '!<%%= config.dev %>/scripts/vendor/*'
           ]
         },
         uglify: true
@@ -191,14 +220,17 @@ module.exports = function (grunt) {
     concurrent: {
       server: [
         'sass:server',
-        'copy:styles'
+        'copy:styles',
+        'copy:scripts'
       ],
       test: [
-        'copy:styles'
+        'copy:styles',
+        'copy:scripts'
       ],
       dist: [
         'sass',
-        'copy:styles'
+        'copy:styles',
+        'copy:scripts'
       ]
     },
 	
@@ -226,7 +258,7 @@ module.exports = function (grunt) {
 	uncss: {
 		dist: {
 			options: {
-				htmlroot     : '<%%= config.dev %>/',
+				htmlroot: '<%%= config.dev %>/',
 			},
 			files: {
 				'<%%= config.dist %>/styles/<%%= config.pkg.name %>.css': ['<%%= config.dev %>/index.html']
@@ -261,10 +293,11 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('build', [
-    'clean:dist',
+    'clean:all',
     'concurrent:dist',
 	'assemble',
 	'uncss',
+    'copy:dev',
     'copy:dist',
     'modernizr'
   ]);
