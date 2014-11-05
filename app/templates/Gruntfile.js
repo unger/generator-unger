@@ -2,12 +2,6 @@
 // <%= pkg.name %> <%= pkg.version %>
 'use strict';
 
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// If you want to recursively match all subfolders, use:
-// 'test/spec/**/*.js'
-
 module.exports = function (grunt) {
 
   // Time how long tasks take. Can help when optimizing build times
@@ -50,7 +44,7 @@ module.exports = function (grunt) {
       },
       sass: {
         files: ['<%%= config.src %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['sass:server']
+        tasks: ['sass:dev']
       },
       styles: {
         files: ['<%%= config.src %>/styles/{,*/}*.css'],
@@ -61,11 +55,15 @@ module.exports = function (grunt) {
           livereload: '<%%= connect.options.livereload %>'
         },
         files: [
-          '<%%= config.src %>/{,*/}*.html',
-          '.tmp/styles/{,*/}*.css',
+          '<%%= config.dev %>/{,*/}*.html',
+          '<%%= config.dev %>/*/styles/{,*/}*.css',
           '<%%= config.src %>/images/{,*/}*'
         ]
-      }
+      },
+	  assemble: {
+        files: ['<%%= config.src %>/**/*.{hbs,json}'],
+        tasks: ['newer:assemble']
+	  }
     },
 
     // The actual grunt server settings
@@ -81,7 +79,7 @@ module.exports = function (grunt) {
         options: {
           middleware: function(connect) {
             return [
-              connect.static('.tmp'),
+              connect.static(config.dev),
               connect().use('/bower_components', connect.static('./bower_components')),
               connect.static(config.src)
             ];
@@ -102,32 +100,22 @@ module.exports = function (grunt) {
         files: [{
           dot: true,
           src: [
-            '.tmp',
             '<%%= config.dist %>/*',
             '<%%= config.dev %>/*',
             '!<%%= config.dist %>/.git*'
           ]
         }]
       },
-      server: '.tmp'
+      dev: '<%%= config.dev %>/*'
     },
 
     // Compiles Sass to CSS and generates necessary files if requested
     sass: {
       options: {
-        sourceMap: true,
+        sourceMap: false,
         includePaths: ['bower_components']
 		},
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%%= config.src %>/styles',
-          src: ['*.{scss,sass}'],
-          dest: '<%%= config.dev %>/styles',
-          ext: '.css'
-        }]
-      },
-      server: {
+      dev: {
         files: [{
           expand: true,
           cwd: '<%%= config.src %>/styles',
@@ -172,9 +160,11 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             'images/{,*/}*.webp',
             '{,*/}*.html',
-            'styles/fonts/{,*/}*.*'
+            'styles/fonts/{,*/}*.*',
+			'styles/{,*/}*.css',
+			'scripts/{,*/}*.css'
           ]
-        }, 
+        },
 		{
           expand: true,
           dot: true,
@@ -182,20 +172,6 @@ module.exports = function (grunt) {
           src: '*',
           dest: '<%%= config.dev %>/fonts/'
         }]
-      },	  
-      styles: {
-        expand: true,
-        dot: true,
-        cwd: '<%%= config.src %>/styles',
-        dest: '<%%= config.dev %>/styles/',
-        src: '{,*/}*.css'
-      },
-      scripts: {
-        expand: true,
-        dot: true,
-        cwd: '<%%= config.src %>/scripts',
-        dest: '<%%= config.dev %>/scripts/',
-        src: '{,*/}*.js'
       }
     },
 
@@ -204,7 +180,7 @@ module.exports = function (grunt) {
     modernizr: {
       dist: {
         devFile: 'bower_components/modernizr/modernizr.js',
-        outputFile: '<%%= config.dev %>/scripts/vendor/modernizr.js',
+        outputFile: '<%%= config.dist %>/scripts/vendor/modernizr.js',
         files: {
           src: [
             '<%%= config.dev %>/scripts/{,*/}*.js',
@@ -216,24 +192,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // Run some tasks in parallel to speed up build process
-    concurrent: {
-      server: [
-        'sass:server',
-        'copy:styles',
-        'copy:scripts'
-      ],
-      test: [
-        'copy:styles',
-        'copy:scripts'
-      ],
-      dist: [
-        'sass',
-        'copy:styles',
-        'copy:scripts'
-      ]
-    },
-	
 	// Assemble
 	assemble: {
 	  options: {
@@ -255,6 +213,7 @@ module.exports = function (grunt) {
 	  }
 	},
 	
+	// Strip unused css
 	uncss: {
 		dist: {
 			options: {
@@ -264,7 +223,22 @@ module.exports = function (grunt) {
 				'<%%= config.dist %>/styles/<%%= config.pkg.name %>.css': ['<%%= config.dev %>/index.html']
 			}
 		}
-	}
+	},
+	
+
+    // Run some tasks in parallel to speed up build process
+    concurrent: {
+      dev: [
+        'sass:dev',
+        'copy:dev',
+		'assemble'
+      ],
+      dist: [
+        'copy:dist',
+		'modernizr:dist',
+		'uncss',
+      ]
+    },	
 	
   });
 
@@ -278,28 +252,17 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'clean:server',
-      'concurrent:server',
-	  'assemble',
-	  'uncss',
+      'clean:dev',
+      'concurrent:dev',
       'connect:livereload',
       'watch'
     ]);
   });
 
-  grunt.registerTask('server', function (target) {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run([target ? ('serve:' + target) : 'serve']);
-  });
-
   grunt.registerTask('build', [
     'clean:all',
+	'concurrent:dev',
     'concurrent:dist',
-	'assemble',
-	'uncss',
-    'copy:dev',
-    'copy:dist',
-    'modernizr'
   ]);
 
   grunt.registerTask('default', [
