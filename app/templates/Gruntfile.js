@@ -162,8 +162,22 @@ module.exports = function (grunt) {
             '{,*/}*.html',
             'styles/fonts/{,*/}*.*',
 			'styles/{,*/}*.css',
-			'scripts/{,*/}*.css'
+			'scripts/{,*/}*.js'
           ]
+        },
+		{
+          expand: true,
+          dot: true,
+          cwd: 'bower_components/jquery/dist/',
+          src: 'jquery.js',
+          dest: '<%%= config.dev %>/scripts/vendor/'
+        },
+		{
+          expand: true,
+          dot: true,
+          cwd: 'bower_components/modernizr/',
+          src: 'modernizr.js',
+          dest: '<%%= config.dev %>/scripts/vendor/'
         },
 		{
           expand: true,
@@ -225,6 +239,19 @@ module.exports = function (grunt) {
 		}
 	},
 	
+	uglify: {
+		options: {
+			mangle: {
+				except: ['jQuery']
+			}
+		},
+		dist: {
+			files: {
+				'<%%= config.dist %>/scripts/<%%= config.pkg.name %>.min.js': ['<%%= config.dev %>/scripts/vendor/*.js', '<%%= config.dev %>/scripts/*.js', '!<%%= config.dev %>/scripts/vendor/modernizr.js']
+			}
+		}
+	},
+	
 
     // Run some tasks in parallel to speed up build process
     concurrent: {
@@ -237,6 +264,7 @@ module.exports = function (grunt) {
         'copy:dist',
 		'modernizr:dist',
 		'uncss',
+		'uglify',
       ]
     },	
 	
