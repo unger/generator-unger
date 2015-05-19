@@ -17,8 +17,8 @@ module.exports = function (grunt) {
   var config = {
     src: 'src',
     dist: 'dist',
-	dev: 'dev',
-	pkg: grunt.file.readJSON('package.json')
+    dev: 'dev',
+    pkg: grunt.file.readJSON('package.json')
   };
 
   // Define the configuration for all the tasks
@@ -161,25 +161,25 @@ module.exports = function (grunt) {
             'images/{,*/}*.webp',
             '{,*/}*.html',
             'styles/fonts/{,*/}*.*',
-			'styles/{,*/}*.css',
-			'scripts/{,*/}*.js'
+            'styles/{,*/}*.css',
+            'scripts/{,*/}*.js'
           ]
         },
-		{
+        {
           expand: true,
           dot: true,
           cwd: 'bower_components/jquery/dist/',
           src: 'jquery.js',
           dest: '<%%= config.dev %>/scripts/vendor/'
         },
-		{
+        {
           expand: true,
           dot: true,
           cwd: 'bower_components/modernizr/',
           src: 'modernizr.js',
           dest: '<%%= config.dev %>/scripts/vendor/'
         },
-		{
+        {
           expand: true,
           dot: true,
           cwd: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/',
@@ -206,51 +206,51 @@ module.exports = function (grunt) {
       }
     },
 
-	// Assemble
-	assemble: {
-	  options: {
-		data:   'src/data/*.json',
-		layoutdir: 'src/templates/layouts',
-		assets: '<%%= config.dev %>'
-	  },
-	  project: {
-		options: {
-		  layout: 'default.hbs',
-		  partials: 'src/templates/partials/**/*.hbs'
-		},
-		files: [{
-			expand: true,
-			cwd: 'src/templates/pages/',
-			src: '**/*.hbs',
-			dest: '<%%= config.dev %>'
-		}]
-	  }
-	},
+    // Assemble
+    assemble: {
+      options: {
+    	data:   'src/data/*.json',
+    	layoutdir: 'src/templates/layouts',
+    	assets: '<%%= config.dev %>'
+      },
+      project: {
+    	options: {
+    	  layout: 'default.hbs',
+    	  partials: 'src/templates/partials/**/*.hbs'
+    	},
+    	files: [{
+    		expand: true,
+    		cwd: 'src/templates/pages/',
+    		src: '**/*.hbs',
+    		dest: '<%%= config.dev %>'
+    	}]
+      }
+    },
 	
-	// Strip unused css
-	uncss: {
-		dist: {
-			options: {
-				htmlroot: '<%%= config.dev %>/',
-			},
-			files: {
-				'<%%= config.dist %>/styles/<%%= config.pkg.name %>.css': ['<%%= config.dev %>/index.html']
-			}
-		}
-	},
-	
-	uglify: {
-		options: {
-			mangle: {
-				except: ['jQuery']
-			}
-		},
-		dist: {
-			files: {
-				'<%%= config.dist %>/scripts/<%%= config.pkg.name %>.min.js': ['<%%= config.dev %>/scripts/vendor/*.js', '<%%= config.dev %>/scripts/*.js', '!<%%= config.dev %>/scripts/vendor/modernizr.js']
-			}
-		}
-	},
+    // Strip unused css
+    uncss: {
+    	dist: {
+    		options: {
+    			htmlroot: '<%%= config.dev %>/',
+    		},
+    		files: {
+    			'<%%= config.dist %>/styles/<%%= config.pkg.name %>.css': ['<%%= config.dev %>/index.html']
+    		}
+    	}
+    },
+    
+    uglify: {
+    	options: {
+    		mangle: {
+    			except: ['jQuery']
+    		}
+    	},
+    	dist: {
+    		files: {
+    			'<%%= config.dist %>/scripts/<%%= config.pkg.name %>.min.js': ['<%%= config.dev %>/scripts/vendor/*.js', '<%%= config.dev %>/scripts/*.js', '!<%%= config.dev %>/scripts/vendor/modernizr.js']
+    		}
+    	}
+    },
 	
 
     // Run some tasks in parallel to speed up build process
@@ -258,16 +258,16 @@ module.exports = function (grunt) {
       dev: [
         'sass:dev',
         'copy:dev',
-		'assemble'
+        'assemble'
       ],
       dist: [
         'copy:dist',
-		'modernizr:dist',
-		'uncss',
-		'uglify',
+        'modernizr:dist',
+        'uncss',
+        'uglify',
       ]
-    },	
-	
+    },
+
   });
 
 
@@ -289,7 +289,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'clean:all',
-	'concurrent:dev',
+    'concurrent:dev',
     'concurrent:dist',
   ]);
 
